@@ -71,8 +71,6 @@ const title = computed(() => article.value?.name || 'Unknown document');
 const description = computed(() => article.value?.description || 'Public document published on Alexandrie, a modern Markdown-based note-taking platform.');
 const baseUrl = runtimeConfig.public.baseUrl || 'https://alexandrie-hub.fr';
 const canonicalUrl = computed(() => `${baseUrl}/doc/${route.params.id}`);
-const ogImage = computed(() => (article.value?.thumbnail ? `${baseUrl}${article.value.thumbnail}` : `${baseUrl}/og/default-article.png`));
-
 useSeoMeta({
   title,
   description,
@@ -82,17 +80,28 @@ useSeoMeta({
   ogDescription: description,
   ogType: 'article',
   ogUrl: canonicalUrl,
-  ogImage,
 
   articlePublishedTime: () => (article.value ? new Date(article.value.created_timestamp).toISOString() : undefined),
 
   articleModifiedTime: () => (article.value ? new Date(article.value.updated_timestamp).toISOString() : undefined),
 
-  twitterCard: 'summary_large_image',
   twitterTitle: title,
   twitterDescription: description,
-  twitterImage: ogImage,
 });
+
+// Link-preview image (og:image / twitter:image are injected here). Use the document's
+// own thumbnail when it has one; otherwise generate a card from its title/description.
+const truncate = (value: string, max: number) => (value.length > max ? `${value.slice(0, max - 1).trimEnd()}…` : value);
+if (article.value?.thumbnail) {
+  const thumb = `${baseUrl}${article.value.thumbnail}`;
+  useSeoMeta({ ogImage: thumb, twitterImage: thumb, twitterCard: 'summary_large_image' });
+} else {
+  defineOgImageComponent('DocCard', {
+    title: truncate(title.value, 120),
+    description: truncate(description.value, 160),
+    site: 'Alexandrie',
+  });
+}
 </script>
 
 <style scoped lang="scss">

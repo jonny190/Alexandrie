@@ -109,7 +109,19 @@ export default defineNuxtConfig({
   imports: {
     dirs: ['stores/**'],
   },
-  modules: ['@pinia/nuxt', '@nuxtjs/color-mode', '@vite-pwa/nuxt', '@nuxt/eslint', '@nuxtjs/i18n'],
+  modules: ['@pinia/nuxt', '@nuxtjs/color-mode', '@vite-pwa/nuxt', '@nuxt/eslint', '@nuxtjs/i18n', 'nuxt-og-image'],
+
+  /**
+   ************************ OG images ************************
+   */
+  // Generated link-preview cards for public documents. Satori renderer (no headless
+  // browser), so it runs in the lightweight Node runtime. og:image meta is injected
+  // automatically by defineOgImageComponent() on the public doc page.
+  ogImage: {
+    zeroRuntime: false,
+    // Only the public doc route generates images; skip prerender scanning elsewhere.
+    componentDirs: ['OgImage'],
+  },
 
   /**
    ************************ Styles ************************
